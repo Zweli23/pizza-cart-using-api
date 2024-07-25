@@ -1,0 +1,9 @@
+[x-cloak] { display: none !important; }
+
+.address, .contact {
+    width: 45%; /* Ensure both columns have similar width */
+}
+
+.address div, .contact div {
+    margin-bottom: 5px; /* Add some spacing between items */
+}

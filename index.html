@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pizza-Cart-API</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="pizza.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+
+<body style="background-image: url('public/istockphoto-1492395393-612x612.jpg'); background-repeat: no-repeat; background-size: cover;; color: #f4f3ee;" x-data="pizzaCart" x-cloak>
+    <br><br>
+    <div class="container">
+        <div style="background-image: url('public/desktop-wallpaper-food-graphy-pizza.jpg'); background-repeat: no-repeat; background-size: cover;">
+            <div style="background-color: yellow; padding: 1em; color: black;">
+                <div>
+                    Username: <input type="text" placeholder="Type username here..." x-model="username">
+                    <button type="button" class="btn btn-success" @click="login" x-show="!cartID">Login</button>
+                    <button type="button" class="btn btn-danger" @click="logout" x-show="username && cartID">Logout</button>
+                </div>
+                <div x-show="cartID">
+                    <span>Cart Code: </span> <span x-text="cartID"></span>
+                </div>
+            </div>
+            <br><br>
+            <div style="text-align: center; background-color: yellow; padding: 5px; font-family: Harlow Solid Italic; color: black;" >
+                <h1>Perfect Pizza</h1>
+            </div>
+                <br>
+                
+                <!--------------------SHOPPING CART SECTION--------------------->
+                <div style="text-align: center;" x-show="cartID != ''">
+                    <button type="button" class="btn btn-warning" @click="toggleCart">Show/Hide Cart</button>
+                </div>
+                <div class="container text-center" x-show="showCart">
+                    <div style="text-align: center;">
+                        <div style="display: inline-block;  padding: 1em; font-family: Harlow Solid Italic;">
+                            <h2 style="text-align: center;">Shopping Cart</h2>
+                        </div>
+                    </div>
+                   
+                    <br>
+                    <hr>
+                    <br>
+                    <table class="table table-dark table-striped-columns">
+                        <thead>
+                            <tr>
+                                <th scope="col">Flavour</th>
+                                <th scope="col">Size</th>
+                                <th scope="col">Price</th>
+                                <th scope="col">Qty</th>
+                                <th scope="col">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template x-for="pizza in cartPizzas">
+                                <tr>
+                                    <td x-text="pizza.flavour"></td>
+                                    <td x-text="pizza.size"></td>
+                                    <td x-text="pizza.price"></td>
+                                    <td>
+                                        <button type="button" class="btn btn-warning" @click="addToCart(pizza.id)">+</button>
+                                        x<span x-text="pizza.qty"></span>
+                                        <button type="button" class="btn btn-warning" @click="removeFromCart(pizza.id)">-</button>
+                                    </td>
+                                    <td x-text="pizza.total.toFixed(2)"></td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                    <div style="background-color: #252422;">
+                        <div x-text="message" style="border: solid; border: #a50104;">
+                        </div>
+                        <div>
+                            <strong>
+                                <span>Total Cost R:</span> <span x-text="totalCost"></span>
+                            </strong>
+                        </div>
+                    </div>
+                    <hr>
+    
+                    <div>
+                        <span>Payment amount</span>
+                        <input type="number" placeholder="0" x-model="money">
+                        <button type="button" class="btn btn-warning" @click="payForCart()">Pay</button>
+                    </div>
+                </div>
+                <br>
+            </div>
+        
+
+            <!-----------------PIZZA DISPLAY OF DELICIOUS PICTURES------------------>
+            <div class="container text-center" x-show="cartID != ''">
+
+                <div class="row" >
+                    <template x-for="pizza in displayPizzas">
+                        <div class="col-sm" class="card"
+                        style="padding: 1em; border: solid #ffb703; margin: 4px; background-image: url('public/greyscale.jpg'); background-repeat: repeat; background-size: cover;">
+                            <div>
+                                <img x-bind:src="featuredImages(pizza)" class="card-img-top" alt="Pizza image">
+                           
+                                <div style="text-align: left;" class="card-body">
+                                <h4 class="card-title" x-text="pizza.flavour"></h4>
+                                <div>
+                                    <strong><span>Size:</span></strong> <strong><span x-text="pizza.size"></span></strong> 
+                                </div>
+                                <div>
+                                    <strong><span>R</span></strong><strong><span x-text="pizza.price"></span></strong>
+                                </div>
+                                
+                                </div>
+                                <button type="button" class="btn btn-light" @click="addToCart(pizza.id)">Buy</button>
+                            </div>
+                        </div>
+
+                        
+                    </template>
+                </div>
+                <br>
+                <!-----------------ALL CART PIZZAS------------------>
+                
+                    <table class="table table-dark table-striped-columns">
+                        <thead>
+                            <tr>
+                                <th>Pizzas</th>
+                                <th>Flavour</th>
+                                <th>Size</th>
+                                <th>Price</th>
+                                <th>Buy</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template x-for="pizza in pizzas">
+                                <tr>
+                                    <td>
+                                        <img x-bind:src="pizzaImage(pizza)" height="70" width="80" alt="Pizza image">
+                                    </td>
+                                    <td x-text="pizza.flavour"></td>
+                                    <td x-text="pizza.size"> </td>
+                                    <td x-text="pizza.price"></td>
+                                    <td>
+                                        <button type="button" class="btn btn-light" @click="addToCart(pizza.id)">Add to cart</button>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                    <!-----------------HISTORICAL CART PURCHASES------------------>
+                    <div style="background-color: #252422;">
+                        <div x-show="cartID != ''" style="padding: 2em;">
+                            <button type="button" class="btn btn-success" @click="showPurchaseHistory" x-show="!showHidePurchaseHistoryButton">View Purchase History</button>
+                            <button type="button" class="btn btn-danger" @click="hidePurchaseHistory" x-show="showHidePurchaseHistoryButton">Hide Purchase History</button>
+                            </div>
+                            <div x-show="purchaseHistory.length > 0">
+                                <h2>Purchase History</h2>
+                                <table class="table table-striped table-hover" >
+                                  <thead>
+                                    <tr>
+                                      <th>Flavour</th>
+                                      <th>Size</th>
+                                      <th>Price</th>
+                                      <th>Quantity</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    <template x-for="purchase in purchaseHistory">
+                                      <tr>
+                                        <td x-text="purchase.flavour"></td>
+                                        <td x-text="purchase.size"></td>
+                                        <td x-text="purchase.price"></td>
+                                        <td x-text="purchase.quantity"></td>
+                                      </tr>
+                                    </template>
+                                  </tbody>
+                                </table>
+                              </div>
+                    </div>
+             
+                
+            </div>
+        <br>
+    </div>
+</body>
+<footer x-show="cartID != ''" class="shadow-sm p-3 mb-5 bg-body-tertiary" style="color: black;">
+    <div class="contact_us">
+
+
+            <div class="contact">
+                <h2>Contact details</h2>
+                Contact us at: (021)-541-1000
+                <div>X</div>
+                <div>/fb</div>
+                <div>/insta</div>
+                <div>@PerfectPizza</div>
+            </div>
+</footer>
+
+</html>
